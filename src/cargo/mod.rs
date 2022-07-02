@@ -1,7 +1,4 @@
-use std::{
-    io,
-    process::{Command, Output},
-};
+use std::process::{Command, Output};
 
 mod error;
 mod version;
@@ -17,8 +14,18 @@ impl Cargo {
         Self(Command::new("cargo"))
     }
 
-    fn exec(&mut self) -> io::Result<Output> {
-        self.0.output()
+    fn exec(&mut self) -> Result<Vec<u8>> {
+        let Output {
+            status,
+            stdout,
+            stderr,
+        } = self.0.output()?;
+
+        if status.success() {
+            Ok(stdout)
+        } else {
+            Err(ParsingError::Exec { stderr })
+        }
     }
 
     pub fn arg(&mut self, arg: &str) -> &mut Self {
@@ -27,17 +34,7 @@ impl Cargo {
     }
 
     pub fn version(&mut self) -> Result<Version> {
-        let Output {
-            status,
-            stdout,
-            stderr,
-        } = self.arg("-Vv").exec()?;
-
-        if status.success() {
-            std::str::from_utf8(&stdout)?.parse()
-        } else {
-            Err(ParsingError::Exec { stderr })
-        }
+        std::str::from_utf8(&self.exec()?)?.parse()
     }
 }
 
