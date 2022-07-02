@@ -51,7 +51,7 @@ pub struct Target {
     pub src_path: PathBuf,
     pub edition: Edition,
     #[serde(rename = "required-features")]
-    pub required_features: Vec<String>,
+    pub required_features: Option<Vec<String>>,
     pub doc: bool,
     pub doctest: bool,
     /// Whether or not this target should be built and run with `--test`
