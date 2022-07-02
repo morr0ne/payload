@@ -1,0 +1,12 @@
+[package]
+name = "payload"
+version = "0.1.0-alpha.1"
+edition = "2021"
+
+[dependencies]
+thiserror = "1.0.31"
+target-lexicon = "0.12.4"
+time = { version = "0.3.11", features = ["parsing"] }
+
+[dev-dependencies]
+color-eyre = "0.6.1"
