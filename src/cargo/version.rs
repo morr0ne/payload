@@ -1,4 +1,5 @@
-use std::str::{FromStr, Lines};
+use semver::Version as SemverVersion;
+use std::str::FromStr;
 use target_lexicon::Triple;
 use time::{format_description::well_known::Iso8601, Date};
 
@@ -8,7 +9,7 @@ use super::{ParsingError, Result};
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Version {
     /// Version of this release of cargo, E.g. "1.62.0".
-    pub release: String,
+    pub release: SemverVersion,
     /// The sha1 hash of the latest commit when this version of cargo was published.
     ///
     /// May be missing if not built from git.
@@ -31,28 +32,57 @@ impl FromStr for Version {
     type Err = ParsingError;
 
     fn from_str(s: &str) -> Result<Self, Self::Err> {
-        /// Finds the next line that matches the prefix
-        fn strip_line(lines: &mut Lines, prefix: &'static str) -> Option<String> {
-            lines
-                .find_map(|line| line.strip_prefix(prefix))
-                .map(|line| line.to_string())
-        }
-
         let mut lines = s.lines();
 
-        // This is safe since it upholds the above safety requirements
+        // Search for a line starting with "release: ", if not found returns an error otherwise it parses it as a semver::Version.
+        let release = lines
+            .find_map(|line| line.strip_prefix("release: "))
+            .ok_or(ParsingError::Version("release"))?
+            .parse()?;
+
+        // Search for a line starting with "commit-hash: " and returns it still wrapped in an option.
+        let commit_hash = lines
+            .find_map(|line| line.strip_prefix("commit-hash: "))
+            .map(|line| line.to_string());
+
+        // Search for a line starting with "commit-date: ", parses it as a time::Date and returns it still wrapped in an option.
+        let commit_date = lines
+            .find_map(|line| line.strip_prefix("commit-date: "))
+            .map(|line| line.to_string())
+            .map(|commit_date| Date::parse(&commit_date, &Iso8601::DEFAULT).unwrap());
+
+        // Search for a line starting with "host: ", if not found returns an error otherwise it parses it as a target_lexicon::Triple.
+        let host = lines
+            .find_map(|line| line.strip_prefix("host:"))
+            .ok_or(ParsingError::Version("host"))?
+            .parse()?;
+
+        // Search for a line starting with "libgit2: ", if not found returns an error otherwise returns it as a String.
+        let libgit2 = lines
+            .find_map(|line| line.strip_prefix("libgit2: "))
+            .map(|line| line.to_string())
+            .ok_or(ParsingError::Version("libgit2"))?;
+
+        // Search for a line starting with "libcurl: ", if not found returns an error otherwise returns it as a String.
+        let libcurl = lines
+            .find_map(|line| line.strip_prefix("libcurl: "))
+            .map(|line| line.to_string())
+            .ok_or(ParsingError::Version("libcurl"))?;
+
+        // Search for a line starting with "os: ", if not found returns an error otherwise returns it as a String.
+        let os = lines
+            .find_map(|line| line.strip_prefix("os: "))
+            .map(|line| line.to_string())
+            .ok_or(ParsingError::Version("os"))?;
+
         Ok(Version {
-            release: strip_line(&mut lines, "release: ").ok_or(ParsingError::Version("release"))?,
-            commit_hash: strip_line(&mut lines, "commit-hash: "),
-            commit_date: strip_line(&mut lines, "commit-date: ")
-                .map(|commit_date| Date::parse(&commit_date, &Iso8601::DEFAULT).unwrap()), // TODO: This is very inefficient.
-            host: strip_line(&mut lines, "host: ")
-                .ok_or(ParsingError::Version("host"))?
-                .parse()
-                .unwrap(), // TODO: This is very inefficient.
-            libgit2: strip_line(&mut lines, "libgit2: ").ok_or(ParsingError::Version("libgit2"))?,
-            libcurl: strip_line(&mut lines, "libcurl: ").ok_or(ParsingError::Version("libcurl"))?,
-            os: strip_line(&mut lines, "os: ").ok_or(ParsingError::Version("os"))?,
+            release,
+            commit_hash,
+            commit_date,
+            host,
+            libgit2,
+            libcurl,
+            os,
         })
     }
 }
