@@ -13,4 +13,8 @@ pub enum ParsingError {
     Io(#[from] IoError),
     #[error("")]
     Utf8(#[from] Utf8Error),
+    #[error("")]
+    Semver(#[from] semver::Error),
+    #[error("")]
+    Triple(#[from] target_lexicon::ParseError),
 }

@@ -11,8 +11,9 @@ documentation = "https://docs.rs/payload"
 
 [dependencies]
 thiserror = "1.0.31"
-target-lexicon = "0.12.4"
+target-lexicon = { version = "0.12.4", features = ["std"] }
 time = { version = "0.3.11", features = ["parsing"] }
+semver = "1.0.12"
 
 [dev-dependencies]
 color-eyre = "0.6.1"
