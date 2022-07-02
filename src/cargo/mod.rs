@@ -2,6 +2,7 @@ use std::process::{Command, Output};
 
 mod error;
 mod metadata;
+mod unit_graph;
 mod version;
 
 pub use error::{ParsingError, Result};
