@@ -1,6 +1,7 @@
 use std::process::{Command, Output};
 
 mod error;
+mod metadata;
 mod version;
 
 pub use error::{ParsingError, Result};
