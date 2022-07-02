@@ -1,4 +1,7 @@
-use std::path::PathBuf;
+use std::{
+    fmt::{Debug, Display},
+    path::PathBuf,
+};
 
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
@@ -84,7 +87,7 @@ pub enum TargetKind {
     CustomBuild,
 }
 
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+#[derive(Clone, Serialize, Deserialize, PartialEq, Eq)]
 /// The rust edition
 pub enum Edition {
     /// Edition 2015
@@ -96,6 +99,26 @@ pub enum Edition {
     /// Edition 2021
     #[serde(rename = "2021")]
     E2021,
+}
+
+impl Debug for Edition {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::E2015 => write!(f, "2015"),
+            Self::E2018 => write!(f, "2018"),
+            Self::E2021 => write!(f, "2021"),
+        }
+    }
+}
+
+impl Display for Edition {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::E2015 => write!(f, "2015"),
+            Self::E2018 => write!(f, "2018"),
+            Self::E2021 => write!(f, "2021"),
+        }
+    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
