@@ -48,6 +48,7 @@ pub struct Unit {
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Target {
+    /// An array of target kinds
     pub kind: Vec<TargetKind>,
     pub crate_types: Vec<String>, // TODO: Not sure if it should be TargetKind or anotther enum.
     pub name: String,
@@ -63,26 +64,37 @@ pub struct Target {
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub enum TargetKind {
+    /// A runnable executable.
     #[serde(rename = "bin")]
     Bin,
+    /// A Rust library.
     #[serde(rename = "lib")]
     Lib,
+    /// A "Rust library" file.
     #[serde(rename = "rlib")]
     Rlib,
+    /// A dynamic Rust library.
     #[serde(rename = "dylib")]
     Dylib,
+    /// A dynamic system library
     #[serde(rename = "cdylib")]
     Cdylib,
+    /// A static system library.
     #[serde(rename = "staticlib")]
     Staticlib,
+    /// A procedural macro.
     #[serde(rename = "proc-macro")]
     ProcMacro,
+    /// An example.
     #[serde(rename = "example")]
     Example,
-    #[serde(rename = "integration")]
-    Integration,
-    #[serde(rename = "benchmark")]
-    Benchmark,
+    /// An integration test.
+    #[serde(rename = "test")]
+    Test,
+    /// A benchmark.
+    #[serde(rename = "bench")]
+    Bench,
+    /// A build script.
     #[serde(rename = "custom-build")]
     CustomBuild,
 }
