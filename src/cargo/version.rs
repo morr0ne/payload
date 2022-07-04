@@ -53,7 +53,7 @@ impl FromStr for Version {
 
         // Search for a line starting with "host: ", if not found returns an error otherwise it parses it as a target_lexicon::Triple.
         let host = lines
-            .find_map(|line| line.strip_prefix("host:"))
+            .find_map(|line| line.strip_prefix("host: "))
             .ok_or(ParsingError::Version("host"))?
             .parse()?;
 
