@@ -7,6 +7,8 @@ use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 use target_lexicon::Triple;
 
+use super::Result;
+
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct UnitGraph {
     /// Version of the JSON output structure.
@@ -205,4 +207,10 @@ pub struct Dependency {
     /// currently used by the build-std feature.
     #[serde(default)]
     pub noprelude: bool,
+}
+
+impl UnitGraph {
+    pub fn parse<A: AsRef<[u8]>>(bytes: A) -> Result<Self> {
+        Ok(serde_json::from_slice(bytes.as_ref())?)
+    }
 }
