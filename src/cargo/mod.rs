@@ -1,9 +1,9 @@
 use std::process::{Command, Output};
 
-mod error;
-mod metadata;
-mod unit_graph;
-mod version;
+pub mod error;
+pub mod metadata;
+pub mod unit_graph;
+pub mod version;
 
 pub use error::{ParsingError, Result};
 pub use metadata::Metadata;
