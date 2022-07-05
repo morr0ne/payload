@@ -1,13 +1,10 @@
-use std::{
-    fmt::{Debug, Display},
-    path::PathBuf,
-};
+use std::fmt::Debug;
 
 use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 use target_lexicon::Triple;
 
-use super::Result;
+use super::{Result, metadata::Target};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct UnitGraph {
@@ -46,93 +43,6 @@ pub struct Unit {
     pub is_std: bool,
     /// Array of dependencies of this unit.
     pub dependencies: Vec<Dependency>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
-pub struct Target {
-    /// An array of target kinds
-    pub kind: Vec<TargetKind>,
-    pub crate_types: Vec<String>, // TODO: Not sure if it should be TargetKind or anotther enum.
-    pub name: String,
-    pub src_path: PathBuf,
-    pub edition: Edition,
-    #[serde(rename = "required-features")]
-    pub required_features: Option<Vec<String>>,
-    pub doc: bool,
-    pub doctest: bool,
-    /// Whether or not this target should be built and run with `--test`
-    pub test: bool,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
-pub enum TargetKind {
-    /// A runnable executable.
-    #[serde(rename = "bin")]
-    Bin,
-    /// A Rust library.
-    #[serde(rename = "lib")]
-    Lib,
-    /// A "Rust library" file.
-    #[serde(rename = "rlib")]
-    Rlib,
-    /// A dynamic Rust library.
-    #[serde(rename = "dylib")]
-    Dylib,
-    /// A dynamic system library
-    #[serde(rename = "cdylib")]
-    Cdylib,
-    /// A static system library.
-    #[serde(rename = "staticlib")]
-    Staticlib,
-    /// A procedural macro.
-    #[serde(rename = "proc-macro")]
-    ProcMacro,
-    /// An example.
-    #[serde(rename = "example")]
-    Example,
-    /// An integration test.
-    #[serde(rename = "test")]
-    Test,
-    /// A benchmark.
-    #[serde(rename = "bench")]
-    Bench,
-    /// A build script.
-    #[serde(rename = "custom-build")]
-    CustomBuild,
-}
-
-#[derive(Clone, Serialize, Deserialize, PartialEq, Eq)]
-/// The rust edition
-pub enum Edition {
-    /// Edition 2015
-    #[serde(rename = "2015")]
-    E2015,
-    /// Edition 2018
-    #[serde(rename = "2018")]
-    E2018,
-    /// Edition 2021
-    #[serde(rename = "2021")]
-    E2021,
-}
-
-impl Debug for Edition {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::E2015 => write!(f, "2015"),
-            Self::E2018 => write!(f, "2018"),
-            Self::E2021 => write!(f, "2021"),
-        }
-    }
-}
-
-impl Display for Edition {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            Self::E2015 => write!(f, "2015"),
-            Self::E2018 => write!(f, "2018"),
-            Self::E2021 => write!(f, "2021"),
-        }
-    }
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
