@@ -31,6 +31,16 @@ impl Cargo {
         Self { path }
     }
 
+    /// Sets the path to the `cargo` executable.
+    ///
+    /// The default one is set by first checking the "CARGO" enviroment variable,
+    /// if not found  running trying [which](which::which) on "cargo",
+    /// if that also doesn't work just uses the string "cargo".
+    pub fn path<P: Into<PathBuf>>(&mut self, path: P) -> &mut Self {
+        self.path = path.into();
+        self
+    }
+
     pub fn command(&self) -> Command {
         Command::new(&self.path)
     }
