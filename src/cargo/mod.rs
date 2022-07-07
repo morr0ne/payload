@@ -30,7 +30,7 @@ impl Cargo {
         let path = env::var("CARGO")
             .map(PathBuf::from)
             .unwrap_or_else(|_| which("cargo").unwrap_or_else(|_| PathBuf::from("cargo")));
-        dbg!(&path);
+
         Self {
             path,
             frozen: false,
