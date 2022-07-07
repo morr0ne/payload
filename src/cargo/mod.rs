@@ -19,6 +19,9 @@ pub use version::Version;
 
 pub struct Cargo {
     path: PathBuf,
+    frozen: bool,
+    locked: bool,
+    offline: bool,
 }
 
 impl Cargo {
@@ -28,7 +31,30 @@ impl Cargo {
             .map(PathBuf::from)
             .unwrap_or_else(|_| which("cargo").unwrap_or_else(|_| PathBuf::from("cargo")));
         dbg!(&path);
-        Self { path }
+        Self {
+            path,
+            frozen: false,
+            locked: false,
+            offline: false,
+        }
+    }
+
+    /// Require Cargo.lock and cache are up to date.
+    pub fn frozen(&mut self, frozen: bool) -> &mut Self {
+        self.frozen = frozen;
+        self
+    }
+
+    /// Require Cargo.lock is up to date.
+    pub fn locked(&mut self, locked: bool) -> &mut Self {
+        self.locked = locked;
+        self
+    }
+
+    /// Run without accessing the network.
+    pub fn offline(&mut self, offline: bool) -> &mut Self {
+        self.offline = offline;
+        self
     }
 
     /// Sets the path to the `cargo` executable.
@@ -42,7 +68,21 @@ impl Cargo {
     }
 
     pub fn command(&self) -> Command {
-        Command::new(&self.path)
+        let mut command = Command::new(&self.path);
+
+        if self.frozen {
+            command.arg("--frozen");
+        }
+
+        if self.locked {
+            command.arg("--locked");
+        }
+
+        if self.offline {
+            command.arg("--offline");
+        }
+
+        command
     }
 
     fn exec<I, S>(&self, args: I) -> Result<Vec<u8>>
