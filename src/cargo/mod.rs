@@ -1,4 +1,11 @@
-use std::process::{Command, Output};
+use std::{
+    env,
+    ffi::OsStr,
+    path::PathBuf,
+    process::{Command, Output},
+};
+
+use which::which;
 
 pub mod error;
 pub mod metadata;
@@ -10,20 +17,34 @@ pub use metadata::Metadata;
 pub use unit_graph::UnitGraph;
 pub use version::Version;
 
-pub struct Cargo(Command);
+pub struct Cargo {
+    path: PathBuf,
+}
 
 impl Cargo {
     pub fn new() -> Self {
-        // TODO: Use cargo location since it may not be in the user path.
-        Self(Command::new("cargo"))
+        // Check the "CARGO" enviroment variable, if not found try running which on "cargo", if that also doesn't work just use "cargo".
+        let path = env::var("CARGO")
+            .map(PathBuf::from)
+            .unwrap_or_else(|_| which("cargo").unwrap_or_else(|_| PathBuf::from("cargo")));
+        dbg!(&path);
+        Self { path }
     }
 
-    fn exec(&mut self) -> Result<Vec<u8>> {
+    pub fn command(&self) -> Command {
+        Command::new(&self.path)
+    }
+
+    fn exec<I, S>(&self, args: I) -> Result<Vec<u8>>
+    where
+        I: IntoIterator<Item = S>,
+        S: AsRef<OsStr>,
+    {
         let Output {
             status,
             stdout,
             stderr,
-        } = self.0.output()?;
+        } = self.command().args(args).output()?;
 
         if status.success() {
             Ok(stdout)
@@ -32,34 +53,20 @@ impl Cargo {
         }
     }
 
-    pub fn arg(&mut self, arg: &str) -> &mut Self {
-        self.0.arg(arg);
-        self
-    }
-
     pub fn version(&mut self) -> Result<Version> {
-        std::str::from_utf8(&self.arg("-Vv").exec()?)?.parse()
+        std::str::from_utf8(&self.exec(["-Vv"])?)?.parse()
     }
 
     /// Just for testing, don't use.
     #[doc(hidden)]
     pub fn _build(&mut self) -> Result<UnitGraph> {
-        let stdout = self
-            .arg("+nightly")
-            .arg("build")
-            .arg("-Zunstable-options")
-            .arg("--unit-graph")
-            .exec()?;
+        let stdout = self.exec(&["+nightly", "build", "-Zunstable-options", "--unit-graph"])?;
 
         Ok(serde_json::from_slice(&stdout)?)
     }
 
     pub fn metadata(&mut self) -> Result<Metadata> {
-        let stdout = self
-            .arg("metadata")
-            .arg("--format-version")
-            .arg("1")
-            .exec()?;
+        let stdout = self.exec(&["metadata", "--format-version", "1"])?;
 
         Ok(serde_json::from_slice(&stdout)?)
     }
