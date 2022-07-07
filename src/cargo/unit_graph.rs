@@ -10,7 +10,7 @@ use super::{Result, metadata::Target};
 pub struct UnitGraph {
     /// Version of the JSON output structure.
     /// If any backwards incompatible changes are made, this value will be increased.
-    version: usize,
+    pub version: usize,
     /// Array of all build units.
     pub units: Vec<Unit>,
     /// Array of indices in the "units" array that are the "roots" of the dependency graph.

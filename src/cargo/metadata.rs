@@ -30,7 +30,7 @@ pub struct Metadata {
     pub target_directory: PathBuf,
     /// The version of the schema for this metadata structure.
     /// This will be changed if incompatible changes are ever made.
-    version: usize, // TODO: Should this be public or not? Same goes for every other command that includes a version field.
+    pub version: usize,
     /// The absolute path to the root of the workspace.
     pub workspace_root: PathBuf,
     /// Workspace metadata.
