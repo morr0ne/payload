@@ -13,7 +13,7 @@ pub mod unit_graph;
 pub mod version;
 
 pub use error::{ParsingError, Result};
-pub use metadata::Metadata;
+pub use metadata::{Metadata, MetadataConfig};
 pub use unit_graph::UnitGraph;
 pub use version::Version;
 
@@ -108,14 +108,16 @@ impl Cargo {
     }
 
     /// Just for testing, don't use.
+    #[cfg(feature = "json")]
     #[doc(hidden)]
     pub fn _build(&mut self) -> Result<UnitGraph> {
-        let stdout = self.exec(&["+nightly", "build", "-Zunstable-options", "--unit-graph"])?;
+        let stdout = self.exec(&["build", "-Zunstable-options", "--unit-graph"])?;
 
         Ok(serde_json::from_slice(&stdout)?)
     }
 
-    pub fn metadata(&mut self) -> Result<Metadata> {
+    #[cfg(feature = "json")]
+    pub fn metadata(&mut self, config: MetadataConfig) -> Result<Metadata> {
         let stdout = self.exec(&["metadata", "--format-version", "1"])?;
 
         Ok(serde_json::from_slice(&stdout)?)

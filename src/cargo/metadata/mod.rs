@@ -7,6 +7,9 @@ use std::{
 use serde::{Deserialize, Serialize};
 use serde_json::Value;
 
+mod config;
+pub use config::{Features, MetadataConfig};
+
 /// The parsed output of `cargo metadata`
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct Metadata {
