@@ -4,7 +4,7 @@ use serde::{Deserialize, Serialize};
 use serde_with::{serde_as, DisplayFromStr};
 use target_lexicon::Triple;
 
-use super::{Result, metadata::Target};
+use super::{metadata::Target, Result};
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
 pub struct UnitGraph {
