@@ -13,7 +13,7 @@ pub mod unit_graph;
 pub mod version;
 
 pub use error::{ParsingError, Result};
-pub use metadata::{Metadata, MetadataConfig};
+pub use metadata::{Features, Metadata, MetadataConfig};
 pub use unit_graph::UnitGraph;
 pub use version::Version;
 
@@ -67,7 +67,11 @@ impl Cargo {
         self
     }
 
-    pub fn command(&self) -> Command {
+    pub fn command<I, S>(&self, args: I) -> Command
+    where
+        I: IntoIterator<Item = S>,
+        S: AsRef<OsStr>,
+    {
         let mut command = Command::new(&self.path);
 
         if self.frozen {
@@ -82,19 +86,17 @@ impl Cargo {
             command.arg("--offline");
         }
 
+        command.args(args);
+
         command
     }
 
-    fn exec<I, S>(&self, args: I) -> Result<Vec<u8>>
-    where
-        I: IntoIterator<Item = S>,
-        S: AsRef<OsStr>,
-    {
+    fn exec(&self, command: &mut Command) -> Result<Vec<u8>> {
         let Output {
             status,
             stdout,
             stderr,
-        } = self.command().args(args).output()?;
+        } = command.output()?;
 
         if status.success() {
             Ok(stdout)
@@ -104,21 +106,50 @@ impl Cargo {
     }
 
     pub fn version(&mut self) -> Result<Version> {
-        std::str::from_utf8(&self.exec(["-Vv"])?)?.parse()
+        let mut command = self.command(&["-Vv"]);
+        std::str::from_utf8(&self.exec(&mut command)?)?.parse()
     }
 
     /// Just for testing, don't use.
     #[cfg(feature = "json")]
     #[doc(hidden)]
     pub fn _build(&mut self) -> Result<UnitGraph> {
-        let stdout = self.exec(&["build", "-Zunstable-options", "--unit-graph"])?;
+        let mut command = self.command(&["build", "-Zunstable-options", "--unit-graph"]);
+
+        let stdout = self.exec(&mut command)?;
 
         Ok(serde_json::from_slice(&stdout)?)
     }
 
     #[cfg(feature = "json")]
     pub fn metadata(&mut self, config: MetadataConfig) -> Result<Metadata> {
-        let stdout = self.exec(&["metadata", "--format-version", "1"])?;
+        let mut command = self.command(&["metadata", "--format-version", "1"]);
+
+        if let Some(features) = &config.features {
+            match features {
+                Features::AllFeatures => {
+                    command.arg("--all-features");
+                }
+                Features::NoDefaultFeatures => {
+                    command.arg("--no-default-features");
+                }
+                Features::SomeFeatures(features) => {
+                    command.arg("--features").arg(features.join(","));
+                }
+            }
+        }
+
+        if let Some(filter_platform) = &config.filter_platform {
+            command
+                .arg("--filter-platform")
+                .arg(&filter_platform.to_string());
+        }
+
+        if let Some(manifest_path) = &config.manifest_path {
+            command.arg("--manifest-path").arg(manifest_path);
+        }
+
+        let stdout = self.exec(&mut command)?;
 
         Ok(serde_json::from_slice(&stdout)?)
     }
