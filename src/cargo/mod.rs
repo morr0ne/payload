@@ -8,12 +8,16 @@ use std::{
 use which::which;
 
 pub mod error;
+#[cfg(feature = "json")]
 pub mod metadata;
+#[cfg(feature = "json")]
 pub mod unit_graph;
 pub mod version;
 
 pub use error::{ParsingError, Result};
+#[cfg(feature = "json")]
 pub use metadata::{Features, Metadata, MetadataConfig};
+#[cfg(feature = "json")]
 pub use unit_graph::UnitGraph;
 pub use version::Version;
 
