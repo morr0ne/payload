@@ -22,7 +22,7 @@ which = "4.2.5"
 
 [dev-dependencies]
 color-eyre = "0.6.1"
+target-lexicon-macros = "0.1.0-alpha.1"
 
 [features]
-default = ["serde"]
-serde = ["dep:serde", "dep:serde_json", "dep:serde_with"]
+json = ["dep:serde", "dep:serde_json", "dep:serde_with"]
