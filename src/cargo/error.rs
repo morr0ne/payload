@@ -4,6 +4,7 @@ use thiserror::Error;
 pub type Result<T, E = ParsingError> = std::result::Result<T, E>;
 
 #[derive(Debug, Error)]
+#[non_exhaustive]
 pub enum ParsingError {
     #[error("Missing \"{0}\" key when parsing Version")]
     Version(&'static str),
@@ -20,6 +21,7 @@ pub enum ParsingError {
     Semver(#[from] semver::Error),
     #[error("")]
     Triple(#[from] target_lexicon::ParseError),
+    #[cfg(feature = "json")]
     #[error("{0}")]
     Serde(#[from] serde_json::Error),
 }
