@@ -38,6 +38,7 @@ pub struct Metadata {
     pub workspace_root: PathBuf,
     /// Workspace metadata.
     /// This is [None] if no metadata is specified. */
+    #[serde(rename = "metadata")]
     pub workspace_metadata: Option<Value>,
 }
 
@@ -74,6 +75,7 @@ pub struct Package {
     /// Absolute path to this package's manifest.
     pub manifest_path: PathBuf,
     /// Package metadata.
+    #[serde(rename = "metadata")]
     pub package_metadata: Option<Value>,
     /// List of registries to which this package may be published.
     ///
