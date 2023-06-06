@@ -1,6 +1,6 @@
 [package]
 name = "payload"
-version = "0.1.0-alpha.4"
+version = "0.1.0"
 edition = "2021"
 description = "Execute cargo commands from your code"
 license = "MIT OR Apache-2.0"
