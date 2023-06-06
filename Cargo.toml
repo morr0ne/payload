@@ -17,7 +17,7 @@ time = { version = "0.3.21", features = ["parsing"] }
 semver = "1.0.17"
 serde = { version = "1.0.163", optional = true, features = ["derive"] }
 serde_json = { version = "1.0.96", optional = true }
-serde_with = { version = "2.0.1", optional = true }
+serde_with = { version = "3.0.0", optional = true }
 which = "4.4.0"
 
 [dev-dependencies]
